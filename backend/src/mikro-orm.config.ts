@@ -20,8 +20,8 @@ const config = {
   metadataProvider: TsMorphMetadataProvider,
   migrations: {
     tableName: 'mikro_orm_migrations', // name of database table with log of executed transactions
-    path: './migrations', // path to the folder with migrations
-    pattern: /^[\w-]+\d+\.ts$/, // regex pattern for the migration files
+    path: './src/migrations', // path to the folder with migrations
+    pattern: /^[\w-]+\d+\.(js|ts)$/, // regex pattern for the migration files
     transactional: true, // wrap each migration in a transaction
     disableForeignKeys: true, // wrap statements with `set foreign_key_checks = 0` or equivalent
     allOrNothing: true, // wrap all migrations in master transaction
