@@ -70,7 +70,13 @@ export class AuthService {
 
       await this.em.flush();
 
-      return { user };
+      return {
+        id: user.id,
+        fulllname: user.fullName,
+        uid: user.uid,
+        email: user.email,
+        username: user.username,
+      };
     } catch (error) {
       throw error;
     }
