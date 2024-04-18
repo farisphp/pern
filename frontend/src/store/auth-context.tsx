@@ -1,4 +1,4 @@
-import { IAuth, LoginFormValues } from "@/interfaces/auth.interface";
+import { IAuth, IUser, LoginFormValues } from "@/interfaces/auth.interface";
 import { firebaseAuth } from "../lib/firebase/setup";
 import {
   SignIn as FirebaseSignIn,
@@ -9,9 +9,10 @@ import { User, onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { Spinner } from "@/components/ui/spinner";
 import { useToast } from "@/components/ui/use-toast";
+import { login } from "@/services/auth";
 
 export const AuthContext = createContext<IAuth>({
-  user: firebaseAuth.currentUser,
+  user: null,
   loading: false,
   SignIn: async () => {},
   SignOut: () => {},
@@ -20,7 +21,7 @@ export const AuthContext = createContext<IAuth>({
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const { toast } = useToast();
 
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [currentUser, setCurrentUser] = useState<IUser | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isAuthLoading, setIsAuthLoading] = useState<boolean>(true);
   const navigate = useNavigate();
@@ -30,13 +31,19 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   //     //implement sign up here - which is implemented below
   //   };
 
+  const fetchUser = async (user: User) => {
+    const token = await user.getIdToken();
+    const res = await login(token);
+    setCurrentUser(res);
+  };
+
   const SignIn = async (creds: LoginFormValues) => {
     setIsLoading(true);
     FirebaseSignIn(creds)
-      .then((userCredential) => {
+      .then(async (userCredential) => {
         const { user } = userCredential;
         if (user) {
-          setCurrentUser(user);
+          fetchUser(user);
           navigate("/", { replace: true });
         } else {
           toast({
@@ -106,7 +113,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     //onAuthStateChanged check if the user is still logged in or not
     const unsubscribe = onAuthStateChanged(firebaseAuth, (user) => {
-      setCurrentUser(user);
+      if (user) fetchUser(user);
       setIsAuthLoading(false);
     });
     return unsubscribe;
