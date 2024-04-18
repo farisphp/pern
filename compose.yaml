@@ -1,0 +1,45 @@
+version: "3.8"
+services:
+  postgres:
+    image: postgres
+    restart: always
+    networks:
+      - private
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: pern-stack
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: >
+      sh -c "npx mikro-orm migration:up && yarn start:dev"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    ports:
+      - 3000:3000
+    depends_on:
+      - postgres
+    networks:
+      - public
+      - private
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - 8080:8080
+    networks:
+      - public
+networks:
+  public:
+  private:
+volumes:
+  postgres_data:

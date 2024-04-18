@@ -9,9 +9,10 @@ const logger = new Logger('MikroORM');
 const config = {
   driver: PostgreSqlDriver,
   dbName: process.env.DB_NAME || 'pern-stack',
-  host: 'localhost',
+  host: process.env.DB_HOST || 'postgres',
+  user: process.env.DB_USER || 'postgres',
   port: process.env.DB_PORT || 5432,
-  password: process.env.DB_PASSWORD,
+  password: process.env.DB_PASSWORD || 'postgres',
   highlighter: new SqlHighlighter(),
   debug: true,
   logger: logger.log.bind(logger),
@@ -20,7 +21,8 @@ const config = {
   metadataProvider: TsMorphMetadataProvider,
   migrations: {
     tableName: 'mikro_orm_migrations', // name of database table with log of executed transactions
-    path: './src/migrations', // path to the folder with migrations
+    path: './dist/src/migrations', // path to the folder with migrations
+    pathTs: './src/migrations', // path to the folder with migrations
     pattern: /^[\w-]+\d+\.(js|ts)$/, // regex pattern for the migration files
     transactional: true, // wrap each migration in a transaction
     disableForeignKeys: true, // wrap statements with `set foreign_key_checks = 0` or equivalent
