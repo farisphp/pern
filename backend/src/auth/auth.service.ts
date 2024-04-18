@@ -44,6 +44,7 @@ export class AuthService {
       this.userRepository.create({
         email: registerAuthDto.email,
         uid: firebaseUser.uid,
+        username: registerAuthDto.username,
         fullName: registerAuthDto.fullname,
       });
 
