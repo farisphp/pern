@@ -8,12 +8,13 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "varchar(255)",
+          "type": "uuid",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "mappedType": "string"
+          "default": "gen_random_uuid()",
+          "mappedType": "uuid"
         },
         "full_name": {
           "name": "full_name",

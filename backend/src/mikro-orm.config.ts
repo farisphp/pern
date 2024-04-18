@@ -15,8 +15,8 @@ const config = {
   highlighter: new SqlHighlighter(),
   debug: true,
   logger: logger.log.bind(logger),
-  entities: ['./dist/entities'],
-  entitiesTs: ['./src/entities'],
+  entities: ['./dist/**/entities/*'],
+  entitiesTs: ['./src/**/entities/*'],
   metadataProvider: TsMorphMetadataProvider,
   migrations: {
     tableName: 'mikro_orm_migrations', // name of database table with log of executed transactions

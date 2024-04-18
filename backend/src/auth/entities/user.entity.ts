@@ -1,11 +1,12 @@
 import { Entity, Property, PrimaryKey, Index } from '@mikro-orm/core';
-import WithSoftDelete from '../utils/soft-delete';
+
+import WithSoftDelete from '../../utils/soft-delete';
 
 @Entity()
 @WithSoftDelete()
 class User {
-  @PrimaryKey()
-  id!: string;
+  @PrimaryKey({ type: 'uuid', defaultRaw: 'gen_random_uuid()' })
+  id: string;
 
   @Property()
   fullName!: string;
