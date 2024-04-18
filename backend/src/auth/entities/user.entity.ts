@@ -12,10 +12,16 @@ class User {
   fullName!: string;
 
   @Property({ unique: true })
+  uid!: string;
+
+  @Property({ unique: true })
   email!: string;
 
   @Property({ unique: true })
   username!: string;
+
+  @Property()
+  lastLoginAt = new Date();
 
   @Property()
   createdAt = new Date();
