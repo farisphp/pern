@@ -1,19 +1,27 @@
-import { IAuth, IUser, LoginFormValues } from "@/interfaces/auth.interface";
+import {
+  IAuth,
+  IUser,
+  LoginFormValues,
+  RegisterFormValues,
+} from "@/interfaces/auth.interface";
 import { firebaseAuth } from "../lib/firebase/setup";
 import {
   SignIn as FirebaseSignIn,
   SignOut as FirebaseSignOut,
+  SignInCustomToken,
 } from "../lib/firebase";
 import { createContext, useEffect, useState } from "react";
 import { User, onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import { Spinner } from "@/components/ui/spinner";
 import { useToast } from "@/components/ui/use-toast";
-import { login } from "@/services/auth";
+import { login, register } from "@/services/auth";
+import { handleException } from "@/lib/firebase/exception";
 
 export const AuthContext = createContext<IAuth>({
   user: null,
   loading: false,
+  SignUp: async () => {},
   SignIn: async () => {},
   SignOut: () => {},
 });
@@ -26,64 +34,59 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isAuthLoading, setIsAuthLoading] = useState<boolean>(true);
   const navigate = useNavigate();
 
-  //   //Sign up
-  //   const SignUp = (creds: UserFormValues) => {
-  //     //implement sign up here - which is implemented below
-  //   };
-
   const fetchUser = async (user: User) => {
     const token = await user.getIdToken();
     const res = await login(token);
     setCurrentUser(res);
   };
 
-  const SignIn = async (creds: LoginFormValues) => {
-    setIsLoading(true);
-    FirebaseSignIn(creds)
-      .then(async (userCredential) => {
-        const { user } = userCredential;
-        if (user) {
-          fetchUser(user);
-          navigate("/", { replace: true });
-        } else {
-          toast({
-            variant: "destructive",
-            title: "Uh oh! Something went wrong.",
-            description: "There was a problem with your request.",
-          });
-        }
+  const SignUp = async (payload: RegisterFormValues) => {
+    try {
+      setIsLoading(true);
 
-        setIsLoading(false);
-      })
-      .catch((error) => {
-        switch (error.code) {
-          case "auth/wrong-password":
-            toast({
-              variant: "destructive",
-              title: "Invalid password.",
-              description: "Make sure your password is correct.",
-            });
+      const { token } = await register(payload);
+      const { user } = await SignInCustomToken(token);
+      if (user) {
+        fetchUser(user);
+        navigate("/", { replace: true });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Uh oh! Something went wrong.",
+          description: "There was a problem with your request.",
+        });
+      }
 
-            break;
-          case "auth/invalid-credential":
-            toast({
-              variant: "destructive",
-              title: "Invalid credentials.",
-              description: "Make sure your email is correct.",
-            });
-            break;
+      setIsLoading(false);
+    } catch (error) {
+      handleException(error);
 
-          default:
-            toast({
-              variant: "destructive",
-              title: "Uh oh! Something went wrong.",
-              description: "There was a problem with your request.",
-            });
-            break;
-        }
+      setIsLoading(false);
+    }
+  };
 
-        setIsLoading(false);
-      });
+  const SignIn = async (payload: LoginFormValues) => {
+    try {
+      setIsLoading(true);
+      const { user } = await FirebaseSignIn(payload);
+
+      if (user) {
+        fetchUser(user);
+        navigate("/", { replace: true });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Uh oh! Something went wrong.",
+          description: "There was a problem with your request.",
+        });
+      }
+
+      setIsLoading(false);
+    } catch (error) {
+      handleException(error);
+
+      setIsLoading(false);
+    }
   };
 
   const SignOut = async () => {
@@ -92,6 +95,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       await FirebaseSignOut();
       setCurrentUser(null);
       navigate("/login", { replace: true });
+      setIsLoading(false);
     } catch (error) {
       toast({
         variant: "destructive",
@@ -106,7 +110,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     user: currentUser,
     loading: isLoading,
     SignIn,
-    // SignUp,
+    SignUp,
     SignOut,
   };
 

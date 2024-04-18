@@ -24,10 +24,12 @@ const formSchema = z.object({
   password: z.string().min(1, {
     message: "Password is required",
   }),
+  fullname: z.string().min(1, { message: "Fullname is required" }),
+  username: z.string().min(1, { message: "Username is required" }),
 });
 
-export default function LoginForm() {
-  const { SignIn, loading } = useAuth();
+export default function RegisterForm() {
+  const { SignUp, loading } = useAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -38,7 +40,7 @@ export default function LoginForm() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    await SignIn({ ...values });
+    await SignUp({ ...values });
   }
 
   return (
@@ -59,6 +61,32 @@ export default function LoginForm() {
         />
         <FormField
           control={form.control}
+          name="fullname"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Full name</FormLabel>
+              <FormControl>
+                <Input placeholder="Full name" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="username"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Username</FormLabel>
+              <FormControl>
+                <Input placeholder="username" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
           name="password"
           render={({ field }) => (
             <FormItem>
@@ -72,7 +100,7 @@ export default function LoginForm() {
         />
 
         <Button type="submit" disabled={loading}>
-          Login
+          Create an account
         </Button>
       </form>
     </Form>

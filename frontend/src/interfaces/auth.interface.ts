@@ -21,7 +21,7 @@ export interface IUser {
 export interface IAuth {
   user: IUser | null;
   loading: boolean;
+  SignUp: (creds: RegisterFormValues) => Promise<void>;
   SignIn: (creds: LoginFormValues) => Promise<void>;
-  // SignUp: (creds:  UserFormValues) =>  void;
   SignOut: () => void;
 }

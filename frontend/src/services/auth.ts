@@ -8,7 +8,10 @@ export const login = async (token: string) => {
 };
 
 export const register = async (payload: RegisterFormValues) => {
-  const { data } = await instance.post("auth/register", payload);
+  const { data } = await instance.post<{ token: string }>(
+    "auth/register",
+    payload
+  );
 
   return data;
 };

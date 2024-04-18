@@ -3,6 +3,7 @@ import {
   signOut,
   setPersistence,
   browserLocalPersistence,
+  signInWithCustomToken,
 } from "firebase/auth";
 import { firebaseAuth } from "./setup";
 import { LoginFormValues } from "@/interfaces/auth.interface";
@@ -15,6 +16,10 @@ export const SignIn = async ({ email, password }: LoginFormValues) => {
     email,
     password
   );
+  return result;
+};
+export const SignInCustomToken = async (token: string) => {
+  const result = await signInWithCustomToken(firebaseAuth, token);
   return result;
 };
 
